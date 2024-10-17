@@ -78,11 +78,31 @@ Node* ancestor(Node* node){
     }
     return p;
 }
-
+//8, 4, 10, 2, 6, 1
+void rotationL(Node* & root){ // ROTACJE ZMIENIC BO NIE DZIALA
+    Node* newroot = root->right; // nowy korzen
+    root->right = newroot->left; // przeniesienie lewego wezla na prawy
+    if(newroot->left != nullptr){ // aktualizacja wskaznikow do lewego poddrzewa
+        newroot->left->parent;
+    }
+    newroot->left = root; //nowy korzen jako rodzic starego
+    newroot->parent = root->parent; 
+    root->parent = newroot; // aktualizacja wskaznika
+}
+void rotationP(Node* &root){
+    Node* newroot = root->left;
+    root->right = newroot->right;
+    if(newroot->right != nullptr){
+        newroot->right->parent;
+    }
+    newroot->right = root;
+    newroot->parent = root->parent;
+    root->parent = newroot;
+}
 int main()
 {
     Node* root = nullptr;
-    int values[] = {13, 10, 20, 4, 12, 11, 14};
+    int values[] = {8, 4, 10, 9, 2, 6, 1, 13};
     for (int value : values){
         root = insert(root, value);
     }
@@ -90,8 +110,9 @@ int main()
     cout << "Przejscie in-order: ";
     inorder(root);
     cout << endl;
-
-    // Wyszukiwanie wÄ™zÅ‚a
+     rotationL(root);
+    inorder(root);
+    // Wyszukiwanie wezla
     int key = 10;
     Node* node = search(root, key);
     if (node != nullptr) {
@@ -108,10 +129,10 @@ int main()
 
 
     //znajdowanie nastepcy
-
+ 
     Node* nastepca = successor(node);
     if(nastepca != nullptr){
-        cout<<"nastepca wezla "<< node->data<< " to "<< nastepca->data;
+        cout<<"nastepca wezla "<< node->data<< " to "<< nastepca->data<<endl;
     }
     else{
         cout<<"nastepca wezla "<< node->data<<" nie istnieje\n";
@@ -127,5 +148,8 @@ int main()
     else{
         cout<<"przodek wezla "<<node->data<<" nie istnieje\n";
     }
+    //rotacja drzewa
+
+    
     return 0;
 }
