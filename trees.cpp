@@ -1,7 +1,7 @@
 #include <iostream>
 #define SPACE 10 // do drukowania drzewa ilosc spacji miedzy wezlami!
 using namespace std;
-
+//wspomagalem sie filmem pana z youtube: https://www.youtube.com/watch?v=FNeL18KsWPc oraz https://www.youtube.com/watch?v=otiDcwZbCo4
 class TreeNode {
     public:
         int value;
