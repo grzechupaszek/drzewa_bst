@@ -1,5 +1,5 @@
 #include <iostream>
-#define SPACE 10 // do drukowania drzewa ilosc spacji miedzy wezlami!
+#define SPACE 25 // do drukowania drzewa ilosc spacji miedzy wezlami!
 using namespace std;
 //wspomagalem sie filmem pana z youtube: https://www.youtube.com/watch?v=FNeL18KsWPc oraz https://www.youtube.com/watch?v=otiDcwZbCo4
 class TreeNode {
@@ -65,10 +65,10 @@ class AVLTree{
                 cout<< "Wartosc wrzucona prawidlowo!\n";
                 return r;
             }
-            if(new_node->value < r->value) r->left = insert(r->left, new_node);
+            if(new_node->value < r->value) r->left = insert(r->left, new_node); //rekurencyjne dodawanie wezla
             else if (new_node->value > r->value) r->right = insert(r->right, new_node);
             else {cout<<"nie mozna dodac dwoch tych samych wartosci!\n"; return r;}
-            int bf = getBalanceFactor(r);
+            int bf = getBalanceFactor(r); // pobieramy balans drzewa
             //Left Left Case
             if(bf > 1 && new_node->value < r->left->value) return rightRotate(r);
             //Right Right case
@@ -85,7 +85,7 @@ class AVLTree{
             }
             return r;
         }
-        void print2D(TreeNode * r, int space){
+        void print2D(TreeNode * r, int space){ // wziete z filmiku podlinkowanego na poczatku
             if (r==nullptr) return;
             space += SPACE;
             print2D(r->right,space);
@@ -110,26 +110,25 @@ class AVLTree{
         }
 
         TreeNode* deleteNode(TreeNode* root, int key) {
-            if (root == nullptr)
+            if (root == nullptr) // sprawdza czy drzewo jest puste
                 return root;
-
-            if (key < root->value)
+            if (key < root->value) // jesli klucz jest mniejszy niz wartosc wezla wtedy idziemy w lewo
                 root->left = deleteNode(root->left, key);
-            else if (key > root->value)
+            else if (key > root->value) // jesli klucz jest wiekszy niz wartosc wezla wtedy idziemy w prawo
                 root->right = deleteNode(root->right, key);
-            else {
-                if ((root->left == nullptr) || (root->right == nullptr)) {
-                    TreeNode* temp = root->left ? root->left : root->right;
-                    if (temp == nullptr) {
+            else { // jesli klucz jest rowny wartosci wezla wtedy usuwamy wezel
+                if ((root->left == nullptr) || (root->right == nullptr)) { //warunki ktore pozwalaja na usuniecie wezla ktore ma jedno dziecko
+                    TreeNode* temp = root->left ? root->left : root->right; // jesli lewe dziecko istnieje to temp to lewe dziecko a jak nie to prawe
+                    if (temp == nullptr) {// jesli nie ma dziecka to usuwamy wezel i przypisujemy 0
                         temp = root;
                         root = nullptr;
                     } else
-                        *root = *temp;
+                        *root = *temp; // przypisuje wartosc temp do root jesli ma dziecko
                     delete temp;
-                } else {
-                    TreeNode* temp = minValueNode(root->right);
+                } else {// jesli wezel ma dwoje dzieci
+                    TreeNode* temp = minValueNode(root->right); // szukamy najmniejszej wartosci w prawym poddrzewie
                     root->value = temp->value;
-                    root->right = deleteNode(root->right, temp->value);
+                    root->right = deleteNode(root->right, temp->value); // usuwamy wezel ktory ma najmniejsza wartosc w prawym poddrzewie
                 }
             }
 
@@ -144,23 +143,44 @@ class AVLTree{
             int balance = leftHeight - rightHeight;
 
             // Balance the tree
+            // Left Left Case - jak przy insert
             if (balance > 1 && key < root->left->value)
                 return rightRotate(root);
-
+            // Right Right Case
             if (balance < -1 && key > root->right->value)
                 return leftRotate(root);
-
+            // Left Right Case
             if (balance > 1 && key > root->left->value) {
                 root->left = leftRotate(root->left);
                 return rightRotate(root);
             }
-
+            // Right Left Case
             if (balance < -1 && key < root->right->value) {
                 root->right = rightRotate(root->right);
                 return leftRotate(root);
             }
 
             return root;
+        }
+        TreeNode* ancestor(TreeNode* root, int val){
+            if(root == nullptr) return nullptr; //jesli nie ma drzewa
+            if(root->value == val) return root; //jesli znaleziono wartosc
+            if(root->value > val) return ancestor(root->left, val); //jesli wartosc jest mniejsza niz wartosc wezla
+            return ancestor(root->right, val);// zwraca przodka
+        }
+        TreeNode* successor(TreeNode* root, int val){
+            if(root == nullptr) return nullptr; //analogicznie
+            if(root->value == val){ // jesli znaleziono wartosc
+                if(root->right != nullptr){ //jesli istnieje prawe dziecko
+                    TreeNode* temp = root->right; //przechodzimy do prawego dziecka
+                    while(temp->left != nullptr) temp = temp->left; //przechodzimy do lewego dziecka
+                    return temp;//zwracamy wartosc
+                }
+            }
+            if(root->value < val) return successor(root->right, val); //jesli wartosc jest wieksza niz wartosc wezla zwraca nastepnika
+            TreeNode* temp = successor(root->left, val);
+            if(temp == nullptr) return root;
+            return temp;
         }
 };
 int main()
@@ -173,6 +193,8 @@ int main()
         cout<<"3. usun wezel\n";
         cout<<"4. wyswietl drzewo\n";
         cout<<"5. wysokosc drzewa\n";
+        cout<<"6. znajdz przodka\n";
+        cout<<"7. znajdz nastepnika\n";
         cout<<"0. wyjdz\n";
         cin>>option;
         TreeNode *new_node = new TreeNode();
@@ -204,10 +226,22 @@ int main()
             case 5:
                 cout<<"wysokosc drzewa: "<<objekt.height(objekt.root)<<endl;
                 break;
+            case 6:
+                cout<<"wpisz wartosc\n";
+                cin>>val;
+                if(objekt.ancestor(objekt.root, val)!=nullptr) 
+                    cout<<"przodek znaleziony i wynosi: "<<objekt.ancestor(objekt.root, val)->value<<endl;
+                else cout<<"przodek nie znaleziony\n";
+                break;
+            case 7:
+                cout<<"wpisz wartosc\n";
+                cin>>val;
+                if(objekt.successor(objekt.root, val)!=nullptr) 
+                    cout<<"nastepnik znaleziony i wynosi: "<<objekt.successor(objekt.root,val)->value<<endl;
+                else cout<<"nastepnik nie znaleziony\n";
             default:
                 cout<<"wybierz poprawna opcje\n";
         };
-    
     }
     while(option!=0);
     return 0;
