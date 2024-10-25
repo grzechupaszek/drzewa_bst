@@ -110,58 +110,64 @@ class AVLTree{
         }
 
         TreeNode* deleteNode(TreeNode* root, int key) {
-            if (root == nullptr) // sprawdza czy drzewo jest puste
+            if (root == nullptr) // If the tree is empty
                 return root;
-            if (key < root->value) // jesli klucz jest mniejszy niz wartosc wezla wtedy idziemy w lewo
+
+            // Perform standard BST delete
+            if (key < root->value)
                 root->left = deleteNode(root->left, key);
-            else if (key > root->value) // jesli klucz jest wiekszy niz wartosc wezla wtedy idziemy w prawo
+            else if (key > root->value)
                 root->right = deleteNode(root->right, key);
-            else { // jesli klucz jest rowny wartosci wezla wtedy usuwamy wezel
-                if ((root->left == nullptr) || (root->right == nullptr)) { //warunki ktore pozwalaja na usuniecie wezla ktore ma jedno dziecko
-                    TreeNode* temp = root->left ? root->left : root->right; // jesli lewe dziecko istnieje to temp to lewe dziecko a jak nie to prawe
-                    if (temp == nullptr) {// jesli nie ma dziecka to usuwamy wezel i przypisujemy 0
+            else {
+                // Node with one child or no child
+                if ((root->left == nullptr) || (root->right == nullptr)) {
+                    TreeNode* temp = root->left ? root->left : root->right;
+                    if (temp == nullptr) { // No child case
                         temp = root;
                         root = nullptr;
-                    } else
-                        *root = *temp; // przypisuje wartosc temp do root jesli ma dziecko
+                    } else { // One child case
+                        *root = *temp; // Copy the contents of the non-empty child
+                    }
                     delete temp;
-                } else {// jesli wezel ma dwoje dzieci
-                    TreeNode* temp = minValueNode(root->right); // szukamy najmniejszej wartosci w prawym poddrzewie
-                    root->value = temp->value;
-                    root->right = deleteNode(root->right, temp->value); // usuwamy wezel ktory ma najmniejsza wartosc w prawym poddrzewie
+                } else {
+                    // Node with two children: Get the inorder successor
+                    TreeNode* temp = minValueNode(root->right);
+                    root->value = temp->value; // Copy the inorder successor's data to this node
+                    root->right = deleteNode(root->right, temp->value); // Delete the inorder successor
                 }
             }
 
+            // If the tree had only one node then return
             if (root == nullptr)
                 return root;
 
-            // Update height of the current node
-            int leftHeight = height(root->left);
-            int rightHeight = height(root->right);
-
             // Get the balance factor
-            int balance = leftHeight - rightHeight;
+            int balance = getBalanceFactor(root);
 
             // Balance the tree
-            // Left Left Case - jak przy insert
-            if (balance > 1 && key < root->left->value)
+            // Left Left Case
+            if (balance > 1 && getBalanceFactor(root->left) >= 0)
                 return rightRotate(root);
-            // Right Right Case
-            if (balance < -1 && key > root->right->value)
-                return leftRotate(root);
+
             // Left Right Case
-            if (balance > 1 && key > root->left->value) {
+            if (balance > 1 && getBalanceFactor(root->left) < 0) {
                 root->left = leftRotate(root->left);
                 return rightRotate(root);
             }
+
+            // Right Right Case
+            if (balance < -1 && getBalanceFactor(root->right) <= 0)
+                return leftRotate(root);
+
             // Right Left Case
-            if (balance < -1 && key < root->right->value) {
+            if (balance < -1 && getBalanceFactor(root->right) > 0) {
                 root->right = rightRotate(root->right);
                 return leftRotate(root);
             }
 
             return root;
         }
+
         TreeNode* ancestor(TreeNode* root, int val){
             if(root == nullptr) return nullptr; //jesli nie ma drzewa
             if(root->value == val) return root; //jesli znaleziono wartosc
@@ -177,11 +183,7 @@ class AVLTree{
                     return temp;//zwracamy wartosc
                 }
             }
-<<<<<<< HEAD
             if(root->value < val) return successor(root->right, val); //jesli wartosc jest wieksza niz wartosc wezla zwraca nastepnika
-=======
-            if(root->value < val) return successor(root->right, val);
->>>>>>> fb64014 (Added deleteNode, show ancestor and show successor)
             TreeNode* temp = successor(root->left, val);
             if(temp == nullptr) return root;
             return temp;
@@ -243,6 +245,22 @@ int main()
                 if(objekt.successor(objekt.root, val)!=nullptr) 
                     cout<<"nastepnik znaleziony i wynosi: "<<objekt.successor(objekt.root,val)->value<<endl;
                 else cout<<"nastepnik nie znaleziony\n";
+            case 8: {
+                // Insert nodes in the specified order
+                int values[] = {10, 7, 12, 3, 8, 11, 13, 2, 5, 9, 14, 4, 6};
+                for (int val : values) {
+                    TreeNode* new_node = new TreeNode(val);
+                    objekt.root = objekt.insert(objekt.root, new_node);
+                }
+                cout << "Initial AVL Tree:" << endl;
+                objekt.print2D(objekt.root, 0);
+
+                // Delete node with value 10
+                objekt.root = objekt.deleteNode(objekt.root, 10);
+                cout << "\nAVL Tree after deleting 10:" << endl;
+                objekt.print2D(objekt.root, 0);
+                break;
+            }
             default:
                 cout<<"wybierz poprawna opcje\n";
         };
