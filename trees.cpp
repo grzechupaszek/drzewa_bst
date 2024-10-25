@@ -177,7 +177,11 @@ class AVLTree{
                     return temp;//zwracamy wartosc
                 }
             }
+<<<<<<< HEAD
             if(root->value < val) return successor(root->right, val); //jesli wartosc jest wieksza niz wartosc wezla zwraca nastepnika
+=======
+            if(root->value < val) return successor(root->right, val);
+>>>>>>> fb64014 (Added deleteNode, show ancestor and show successor)
             TreeNode* temp = successor(root->left, val);
             if(temp == nullptr) return root;
             return temp;
